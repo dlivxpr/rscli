@@ -1,5 +1,6 @@
 fn main() {
     println!("Hello, rscli!");
+    println!("this is just for test");
 }
 
 #[cfg(test)]
