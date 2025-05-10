@@ -1,74 +1,36 @@
-# This template contains all of the possible sections and their default values
-
-# Note that all fields that take a lint level have these possible values:
-# * deny - An error will be produced and the check will fail
-# * warn - A warning will be produced, but the check will not fail
-# * allow - No warning or error will be produced, though in some cases a note
-# will be
-
-# The values provided in this template are the default values that will be used
-# when any section or field is not specified in your own configuration
-
-# If 1 or more target triples (and optionally, target_features) are specified,
-# only the specified targets will be checked when running `cargo deny check`.
-# This means, if a particular package is only ever used as a target specific
-# dependency, such as, for example, the `nix` crate only being used via the
-# `target_family = "unix"` configuration, that only having windows targets in
-# this list would mean the nix crate, as well as any of its exclusive
-# dependencies not shared by any other crates, would be ignored, as the target
-# list here is effectively saying which targets you are building for.
+# 这是基于最新的cargo-deny格式的配置文件
+[graph]
+# 如果指定了1个或多个目标三元组（也可以选择性地指定target_features），
+# 那么在运行`cargo deny check`时，只会检查指定的目标。
 targets = [
-  # The triple can be any string, but only the target triples built in to
-  # rustc (as of 1.40) can be checked against actual config expressions
+  # 三元组可以是任何字符串，但只有在rustc中内置的目标三元组（截至1.40）
+  # 可以针对实际的配置表达式进行检查
   #{ triple = "x86_64-unknown-linux-musl" },
-  # You can also specify which target_features you promise are enabled for a
-  # particular target. target_features are currently not validated against
-  # the actual valid features supported by the target architecture.
+  # 您还可以指定您承诺为特定目标启用的target_features。
+  # 目前，target_features不会针对目标架构支持的实际有效特性进行验证。
   #{ triple = "wasm32-unknown-unknown", features = ["atomics"] },
 ]
 
-# This section is considered when running `cargo deny check advisories`
-# More documentation for the advisories section can be found here:
-# https://embarkstudios.github.io/cargo-deny/checks/advisories/cfg.html
+# 在运行`cargo deny check advisories`时会考虑此部分
 [advisories]
-# The path where the advisory database is cloned/fetched into
+# advisory数据库被克隆/获取到的根目录路径
 db-path = "~/.cargo/advisory-db"
-# The url(s) of the advisory databases to use
+# 要使用的advisory数据库的URL
 db-urls = ["https://github.com/rustsec/advisory-db"]
-# The lint level for security vulnerabilities
-vulnerability = "deny"
-# The lint level for unmaintained crates
-unmaintained = "warn"
-# The lint level for crates that have been yanked from their source registry
-yanked = "warn"
-# The lint level for crates with security notices. Note that as of
-# 2019-12-17 there are no security notice advisories in
-# https://github.com/rustsec/advisory-db
-notice = "warn"
-# A list of advisory IDs to ignore. Note that ignored advisories will still
-# output a note when they are encountered.
+# 使用git CLI获取advisory数据库
+git-fetch-with-cli = true
+# 配置如何处理未维护的crate
+unmaintained = "workspace"
+# 配置如何处理已从源注册表yanked的crate
+yanked = "deny"
+# 忽略的advisory ID列表
 ignore = [
   #"RUSTSEC-0000-0000",
 ]
-# Threshold for security vulnerabilities, any vulnerability with a CVSS score
-# lower than the range specified will be ignored. Note that ignored advisories
-# will still output a note when they are encountered.
-# * None - CVSS Score 0.0
-# * Low - CVSS Score 0.1 - 3.9
-# * Medium - CVSS Score 4.0 - 6.9
-# * High - CVSS Score 7.0 - 8.9
-# * Critical - CVSS Score 9.0 - 10.0
-#severity-threshold =
 
-# This section is considered when running `cargo deny check licenses`
-# More documentation for the licenses section can be found here:
-# https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html
+# 在运行`cargo deny check licenses`时会考虑此部分
 [licenses]
-# The lint level for crates which do not have a detectable license
-unlicensed = "allow"
-# List of explicitly allowed licenses
-# See https://spdx.org/licenses/ for list of possible licenses
-# [possible values: any SPDX 3.7 short identifier (+ optional exception)].
+# 明确允许的许可证
 allow = [
   "MIT",
   "Apache-2.0",
@@ -79,130 +41,95 @@ allow = [
   "ISC",
   "CC0-1.0",
 ]
-# List of explicitly disallowed licenses
-# See https://spdx.org/licenses/ for list of possible licenses
-# [possible values: any SPDX 3.7 short identifier (+ optional exception)].
-deny = [
-  #"Nokia",
-]
-# Lint level for licenses considered copyleft
-copyleft = "warn"
-# Blanket approval or denial for OSI-approved or FSF Free/Libre licenses
-# * both - The license will be approved if it is both OSI-approved *AND* FSF
-# * either - The license will be approved if it is either OSI-approved *OR* FSF
-# * osi-only - The license will be approved if is OSI-approved *AND NOT* FSF
-# * fsf-only - The license will be approved if is FSF *AND NOT* OSI-approved
-# * neither - This predicate is ignored and the default lint level is used
-allow-osi-fsf-free = "neither"
-# Lint level used when no other predicates are matched
-# 1. License isn't in the allow or deny lists
-# 2. License isn't copyleft
-# 3. License isn't OSI/FSF, or allow-osi-fsf-free = "neither"
-default = "deny"
-# The confidence threshold for detecting a license from license text.
-# The higher the value, the more closely the license text must be to the
-# canonical license text of a valid SPDX license file.
-# [possible values: any between 0.0 and 1.0].
+# 从许可证文本中检测许可证的置信度阈值。
+# 值越高，许可证文本必须越接近有效SPDX许可证文件的规范许可证文本。
 confidence-threshold = 0.8
-# Allow 1 or more licenses on a per-crate basis, so that particular licenses
-# aren't accepted for every possible crate as with the normal allow list
+# 在每个crate基础上允许一个或多个许可证，
+# 这样特定许可证不会像正常允许列表那样被接受用于每个可能的crate
 exceptions = [
-  # Each entry is the crate and version constraint, and its specific allow
-  # list
+  # 每个条目都是crate和版本约束，以及其特定的允许列表
   #{ allow = ["Zlib"], name = "adler32", version = "*" },
 ]
 
-# Some crates don't have (easily) machine readable licensing information,
-# adding a clarification entry for it allows you to manually specify the
-# licensing information
+# 某些crate没有（容易）机器可读的许可证信息，
+# 为其添加澄清条目允许您手动指定许可证信息
 #[[licenses.clarify]]
-# The name of the crate the clarification applies to
+# 澄清适用的crate的名称
 #name = "ring"
-# The optional version constraint for the crate
+# crate的可选版本约束
 #version = "*"
-# The SPDX expression for the license requirements of the crate
+# crate的许可证要求的SPDX表达式
 #expression = "MIT AND ISC AND OpenSSL"
-# One or more files in the crate's source used as the "source of truth" for
-# the license expression. If the contents match, the clarification will be used
-# when running the license check, otherwise the clarification will be ignored
-# and the crate will be checked normally, which may produce warnings or errors
-# depending on the rest of your configuration
+# crate源中用作许可证表达式"真实来源"的一个或多个文件。
+# 如果内容匹配，在运行许可证检查时将使用澄清，否则澄清将被忽略，
+# 并且将正常检查crate，这可能会根据您的其余配置产生警告或错误
 #license-files = [
-# Each entry is a crate relative path, and the (opaque) hash of its contents
+# 每个条目都是crate相对路径和其内容的（不透明）哈希
 #{ path = "LICENSE", hash = 0xbd0eed23 }
 #]
 
 [licenses.private]
-# If true, ignores workspace crates that aren't published, or are only
-# published to private registries
-ignore = false
-# One or more private registries that you might publish crates to, if a crate
-# is only published to private registries, and ignore is true, the crate will
-# not have its license(s) checked
+# 如果为true，则忽略未发布或只发布到私有注册表的工作区crate
+ignore = true
+# 您可能要发布crate的一个或多个私有注册表，
+# 如果一个crate只发布到私有注册表，且ignore为true，
+# 则该crate的许可证不会被检查
 registries = [
   #"https://sekretz.com/registry
 ]
 
-# This section is considered when running `cargo deny check bans`.
-# More documentation about the 'bans' section can be found here:
-# https://embarkstudios.github.io/cargo-deny/checks/bans/cfg.html
+# 在运行`cargo deny check bans`时会考虑此部分
 [bans]
-# Lint level for when multiple versions of the same crate are detected
+# 当检测到同一crate的多个版本时的lint级别
 multiple-versions = "warn"
-# Lint level for when a crate version requirement is `*`
+# 当crate版本要求为`*`时的lint级别
 wildcards = "allow"
-# The graph highlighting used when creating dotgraphs for crates
-# with multiple versions
-# * lowest-version - The path to the lowest versioned duplicate is highlighted
-# * simplest-path - The path to the version with the fewest edges is highlighted
-# * all - Both lowest-version and simplest-path are used
+# 当为具有多个版本的crate创建dotgraph时使用的图突出显示
+# * lowest-version - 突出显示到最低版本重复项的路径
+# * simplest-path - 突出显示到边最少的版本的路径
+# * all - 同时使用lowest-version和simplest-path
 highlight = "all"
-# List of crates that are allowed. Use with care!
+# 允许的crate列表。小心使用！
 allow = [
   #{ name = "ansi_term", version = "=0.11.0" },
 ]
-# List of crates to deny
-deny = [
-  # Each entry the name of a crate and a version range. If version is
-  # not specified, all versions will be matched.
-  #{ name = "ansi_term", version = "=0.11.0" },
-  #
-  # Wrapper crates can optionally be specified to allow the crate when it
-  # is a direct dependency of the otherwise banned crate
-  #{ name = "ansi_term", version = "=0.11.0", wrappers = [] },
-]
-# Certain crates/versions that will be skipped when doing duplicate detection.
+# 要拒绝的crate列表 - 已经移除，不再使用
+# deny = [
+#   # 每个条目都是crate的名称和版本范围。如果没有指定版本，
+#   # 将匹配所有版本。
+#   #{ name = "ansi_term", version = "=0.11.0" },
+#   #
+#   # 可以选择性地指定包装器crate，以允许crate当它是
+#   # 被禁止的crate的直接依赖时使用
+#   #{ name = "ansi_term", version = "=0.11.0", wrappers = [] },
+# ]
+# 在进行重复检测时将跳过的特定crate/版本
 skip = [
   #{ name = "ansi_term", version = "=0.11.0" },
 ]
-# Similarly to `skip` allows you to skip certain crates during duplicate
-# detection. Unlike skip, it also includes the entire tree of transitive
-# dependencies starting at the specified crate, up to a certain depth, which is
-# by default infinite
+# 类似于`skip`，允许您在重复检测期间跳过某些crate。
+# 与skip不同，它还包括从指定crate开始的传递依赖项的整个树，
+# 直到某个深度，默认为无限
 skip-tree = [
   #{ name = "ansi_term", version = "=0.11.0", depth = 20 },
 ]
 
-# This section is considered when running `cargo deny check sources`.
-# More documentation about the 'sources' section can be found here:
-# https://embarkstudios.github.io/cargo-deny/checks/sources/cfg.html
+# 在运行`cargo deny check sources`时会考虑此部分
 [sources]
-# Lint level for what to happen when a crate from a crate registry that is not
-# in the allow list is encountered
+# 当遇到不在允许列表中的crate注册表时的lint级别
 unknown-registry = "warn"
-# Lint level for what to happen when a crate from a git repository that is not
-# in the allow list is encountered
+# 当遇到不在允许列表中的git仓库时的lint级别
 unknown-git = "warn"
-# List of URLs for allowed crate registries. Defaults to the crates.io index
-# if not specified. If it is specified but empty, no registries are allowed.
+# 允许的crate注册表URL列表。如果未指定，默认为crates.io索引。
+# 如果指定但为空，则不允许任何注册表。
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
-# List of URLs for allowed Git repositories
+# 允许的Git仓库URL列表
 allow-git = []
 
 [sources.allow-org]
-# 1 or more github.com organizations to allow git sources for
+# 允许git源的github.com组织
 github = []
-# 1 or more gitlab.com organizations to allow git sources for
+# 允许git源的gitlab.com组织
 gitlab = []
-# 1 or more bitbucket.org organizations to allow git sources for
+# 允许git源的bitbucket.org组织
 bitbucket = []
