@@ -34,12 +34,13 @@ ignore = [
 allow = [
   "MIT",
   "Apache-2.0",
-  "Unicode-DFS-2016",
-  "MPL-2.0",
-  "BSD-2-Clause",
-  "BSD-3-Clause",
-  "ISC",
-  "CC0-1.0",
+#   "Unicode-DFS-2016",
+  "Unicode-3.0",
+#   "MPL-2.0",
+#   "BSD-2-Clause",
+#   "BSD-3-Clause",
+#   "ISC",
+#   "CC0-1.0",
 ]
 # 从许可证文本中检测许可证的置信度阈值。
 # 值越高，许可证文本必须越接近有效SPDX许可证文件的规范许可证文本。
